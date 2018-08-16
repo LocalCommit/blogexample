@@ -50,7 +50,7 @@ class LoginController extends Controller
         $field = $this->field($request);
 
         return [
-            $field => $request->get($email),
+            $field => $request->get($this->username()),
             'password' => $request->get('password'),
             'active' => User::ACTIVE,
         ];
@@ -79,10 +79,10 @@ class LoginController extends Controller
     {
         $field = $this->field($request);
 
-        $messages = ["{$field}.exists" => 'The account you are trying to login is not activated or it has been disabled.'];
+        $messages = ["{$this->username()}.exists" => 'The account you are trying to login is not activated or it has been disabled.'];
 
         $this->validate($request, [
-            $field => "required|exists:users,{$field},active," . User::ACTIVE,
+            $this->username() => "required|exists:users,{$field},active," . User::ACTIVE,
             'password' => 'required',
         ], $messages);
     }
