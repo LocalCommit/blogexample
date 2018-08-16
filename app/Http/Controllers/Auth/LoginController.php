@@ -47,15 +47,26 @@ class LoginController extends Controller
      */
     protected function credentials(Request $request)
     {
-        $email = $this->username();
-
-        $field = filter_var($request->get($email), FILTER_VALIDATE_EMAIL) ? $email : 'username';
+        $field = $this->field($request);
 
         return [
             $field => $request->get($email),
-            'password' => $request->password,
+            'password' => $request->get('password'),
             'active' => User::ACTIVE,
         ];
+    }
+
+    /**
+     * Determine if the request field is email or username.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return string
+     */
+    public function field(Request $request)
+    {
+        $email = $this->username();
+
+        return filter_var($request->get($email), FILTER_VALIDATE_EMAIL) ? $email : 'username';
     }
 
     /**
@@ -66,10 +77,12 @@ class LoginController extends Controller
      */
     protected function validateLogin(Request $request)
     {
-        $messages = ["{$this->username()}.exists" => 'The account you are trying to login is not activated or it has been disabled.'];
+        $field = $this->field($request);
+
+        $messages = ["{$field}.exists" => 'The account you are trying to login is not activated or it has been disabled.'];
 
         $this->validate($request, [
-            $this->username() => "required|exists:users,{$this->username()},active," . User::ACTIVE,
+            $field => "required|exists:users,{$field},active," . User::ACTIVE,
             'password' => 'required',
         ], $messages);
     }
