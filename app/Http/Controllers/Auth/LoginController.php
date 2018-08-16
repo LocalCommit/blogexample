@@ -57,4 +57,20 @@ class LoginController extends Controller
             'active' => User::ACTIVE,
         ];
     }
+
+    /**
+     * Validate the user login request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return void
+     */
+    protected function validateLogin(Request $request)
+    {
+        $messages = ["{$this->username()}.exists" => 'The account you are trying to login is not activated or it has been disabled.'];
+
+        $this->validate($request, [
+            $this->username() => "required|exists:users,{$this->username()},active," . User::ACTIVE,
+            'password' => 'required',
+        ], $messages);
+    }
 }
